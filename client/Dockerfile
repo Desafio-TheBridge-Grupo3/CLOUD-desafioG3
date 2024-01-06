@@ -5,7 +5,7 @@ FROM node:14
 WORKDIR /app
 
 # Copiar el código del cliente al directorio de trabajo
-COPY ../client ./client
+COPY . ./client
 
 # Instalar las dependencias del cliente
 RUN cd client && npm install
