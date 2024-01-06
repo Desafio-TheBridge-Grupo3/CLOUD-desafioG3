@@ -5,7 +5,7 @@ FROM node:14
 WORKDIR /app
 
 # Copiar el código del servidor al directorio de trabajo
-COPY ./server ./server
+COPY . ./server
 
 # Instalar las dependencias del servidor
 RUN cd server && npm install
