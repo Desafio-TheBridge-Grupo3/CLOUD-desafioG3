@@ -11,10 +11,10 @@ resources:
 variables:
   # Container registry service connection established during pipeline creation
   dockerRegistryServiceConnection: 'c1e4dac3-f77e-473a-b293-4b7351555c24'
-  imageRepository: 'serverdesafiothebridgegrupoclouddesafiog'
+  imageRepository: 'serverdesafio'
   containerRegistry: 'dockerjuanadevesat.azurecr.io'
   dockerfilePath: '$(Build.SourcesDirectory)/server/Dockerfile'
-  tag: 'server-$(Build.BuildId)'
+  tag: 'latest'
 
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
