@@ -14,7 +14,7 @@ variables:
   imageRepository: 'clientdesafiothebridgegrupoclouddesafiog'
   containerRegistry: 'dockerjuanadevesat.azurecr.io'
   dockerfilePath: '$(Build.SourcesDirectory)/client/Dockerfile'
-  tag: 'client$(Build.BuildId)'
+  tag: 'client$(Build.BuildId):latest'
 
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
