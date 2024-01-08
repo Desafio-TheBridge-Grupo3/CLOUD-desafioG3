@@ -1,6 +1,10 @@
 # CLOUD-desafioG3
 Submódulo para el desarrollo de la parte de cloud &amp; DevOps del proyecto "Desafio-theBridge-sep23-grupo3"
 
+## Variables de entorno:
+
+Documentación: https://learn.microsoft.com/en-us/azure/app-service/reference-app-settings?tabs=kudu%2Cdotnet
+
 ## Creación de pipeline CI/CD
 
 ### paso 1 - Creación de un "container registry"
