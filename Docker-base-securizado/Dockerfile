@@ -101,11 +101,7 @@ RUN find /bin /etc /lib /sbin /usr -xdev -type l -exec test ! -e {} \; -delete
 # COPY post-install.sh $APP_DIR/
 # RUN chmod 500 $APP_DIR/post-install.sh
 
-
-
-
-
-
+RUN apk update && apk add nodejs=20.10.0-r1 && apk add npm
 
 # default directory is /app
 WORKDIR $APP_DIR
