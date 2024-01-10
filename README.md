@@ -11,7 +11,13 @@ https://www.youtube.com/watch?v=XSAHwE21Buk
 
 ## Creación de pipeline CI/CD
 
-### paso 1 - Creación de un "container registry"
+### paso 1 - Requisitos
+
+**1.1 - Creación de un "container registry"**
+
+**1.2 - Configurar sonarQube para sanetización del código**
+
+Documentación SonarQube: https://docs.sonarsource.com/sonarqube/10.3/devops-platform-integration/azure-devops-integration/
 
 ### Paso 2 - Pipeline artefacto:
 
@@ -19,11 +25,15 @@ Crea nueva pipeline desde un repositorio de github. Una vez seleccionado el repo
 
 ![Docker Build and push an image to azure container registry](img/Screenshot_1-Pipeline-github-01.png)
 
-Ahora seleccionamos la suacripción donde tenemos nuestro registro de contenedores y rellenamos con el nombre de la imagen que vamos a crear y la ubicación del Dockerfile dentro de nuestro repositorio:
+Ahora seleccionamos la suscripción donde tenemos nuestro registro de contenedores y rellenamos con el nombre de la imagen que vamos a crear y la ubicación del Dockerfile dentro de nuestro repositorio:
 
 ![Configurar imagen](img/Screenshot_2-Pipeline-github-02.png)
 
-Finalizamos revisando que la información del YAML es correcta y ejecutamos la pipeline.
+ Revisamos que la información del YAML es correcta y agregaremos tareas de SonarQube para que Ciberseguridad pueda sanetizar el código.
+
+
+
+Finalizamos
 
 ### Paso 3 - Release Pipeline de desarrollo:
 

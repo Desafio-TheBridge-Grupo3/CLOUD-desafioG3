@@ -1,4 +1,4 @@
-FROM alpine:3.16.3
+FROM alpine:3.19
 
 LABEL org.opencontainers.image.source="https://github.com/ironpeakservices/iron-alpine"
 
@@ -98,8 +98,14 @@ RUN rm -f /etc/fstab
 RUN find /bin /etc /lib /sbin /usr -xdev -type l -exec test ! -e {} \; -delete
 
 # add-in post installation file for permissions
-COPY post-install.sh $APP_DIR/
-RUN chmod 500 $APP_DIR/post-install.sh
+# COPY post-install.sh $APP_DIR/
+# RUN chmod 500 $APP_DIR/post-install.sh
+
+
+
+
+
+
 
 # default directory is /app
 WORKDIR $APP_DIR
