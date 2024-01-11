@@ -89,3 +89,57 @@ Seguidamente modificaremos el Deploy Azure App Service para introducir el puerto
 ![Puerto expuesto](img/Screenshot_12-Pipeline-dev-tasks-06.png)
 
 FALTAN LOS TESTS
+
+## MEMORIA
+
+### 08 de enero, 2024
+
+- Primera reunión con Cliente
+- Crear usuarios invitados y grupos de seguridad en suscripción de azure para Data, Ciber y Fullstack
+- Gestionar permisos sobre el grupo de recursos para cada grupo de seguridad
+- Reunión con Ciber: 
+    - Decisión de crear una imágen de Docker securizada de alpine 3.19 como base para los despliegues
+    - Pentest de máquina hola, mundo
+- Creación de servidor para base de datos PostgreSQL
+
+### 09 de enero, 2024
+
+- Creación de container registry
+- Creación de pipeline para creación de imágenes de client y server
+- Comienza pipeline de despliegue para app service de client y server pre-producción
+- Reunión con Data:
+    - Propuesta de Api Centers para api de actualización de la tabla con Azure Functions
+- Reunión con Ciber:
+    - Backup de la base de datos
+    - Logs para ciber
+
+### 10 de enero, 2024
+
+- Reunión con Ciber:
+    - Intento de despliegue automático de sonarqube en pipeline. Conclusión: ejecución en local no tiene acceso a Azure Pipelines. Ciber busca solución con repo en local.
+    - Plantilla de imágen Iron-Alpine encontrada. Test de la imágen, todo funcional.
+- Reunión con Data:
+    - Api para actualización automática de la tabla. La Api solo actualizará campos complejos. Los campos sencillos de la tabla se manejan desde front end.
+    - Necesidad de Hostear Api para el scrapping de Candela
+- Bloqueo de pipeline de despliegue por exceso de intentos. Desbloqueo en 48 horas. Solución temporal: ejecución manual del despliegue a petición de FULLSTACK.
+
+
+### 11 de enero, 2024
+
+- Reunión con Ciber:
+    - Recibido documento hardening-v3. Implementados los cambios en el Dockerfile listo para desplegar.
+    - Crear firewall y VPC publica y privada. Expansión de permisos para modificación de VPC y firewall.            POR HACER
+- Continuación con host de API scraping                                                                             POR HACER
+- Diseño de esquema Arquitectura final                                                                              POR HACER
+
+### 12 de enero, 2024
+
+- Hosting API de guardado con API centers
+- Preparar variables de entorno y secretos
+- Prueba versión 1.0 de app estable?
+
+
+### --------------PERSONAL----------------
+- Documentarme sobre uso de variables de entorno y secretos en azure
+- Monitorización (MARKETING? CIBER?)
+- nota: CodeQL para anialisis de codigo mientras se desarrolla
