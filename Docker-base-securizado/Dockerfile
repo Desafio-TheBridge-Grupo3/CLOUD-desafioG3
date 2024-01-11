@@ -12,7 +12,7 @@ RUN echo "https://alpine.global.ssl.fastly.net/alpine/v$(cut -d . -f 1,2 < /etc/
 # The user the app should run as
 ENV APP_USER=app
 # The home directory
-ENV APP_DIR="/$APP_USER"
+ENV APP_DIR="/home/$APP_USER"
 # Where persistent data (volume) should be stored
 ENV DATA_DIR "$APP_DIR/data"
 # Where configuration should be stored
@@ -27,6 +27,8 @@ RUN adduser -s /bin/true -u 1000 -D -h $APP_DIR $APP_USER \
   && mkdir "$DATA_DIR" "$CONF_DIR" \
   && chown -R "$APP_USER" "$APP_DIR" "$CONF_DIR" \
   && chmod 700 "$APP_DIR" "$DATA_DIR" "$CONF_DIR"
+
+RUN su $APP_USER
 
 # Remove existing crontabs, if any.
 RUN rm -fr /var/spool/cron \
@@ -53,12 +55,6 @@ RUN sed -i -r 's#^(.*):[^:]*$#\1:/sbin/nologin#' /etc/passwd
 
 # Disable password login for everybody
 RUN while IFS=: read -r username _; do passwd -l "$username"; done < /etc/passwd || true
-
-# Remove apk configs. -> Commented out because we need apk to install other stuff
-#RUN find /bin /etc /lib /sbin /usr \
-#  -xdev -type f -regex '.*apk.*' \
-#  ! -name apk \
-#  -exec rm -fr {} +
 
 # Remove temp shadow,passwd,group
 RUN find /bin /etc /lib /sbin /usr -xdev -type f -regex '.*-$' -exec rm -f {} +
@@ -98,10 +94,12 @@ RUN rm -f /etc/fstab
 RUN find /bin /etc /lib /sbin /usr -xdev -type l -exec test ! -e {} \; -delete
 
 # add-in post installation file for permissions
-# COPY post-install.sh $APP_DIR/
-# RUN chmod 500 $APP_DIR/post-install.sh
-
-RUN apk update && apk add nodejs=20.10.0-r1 && apk add npm
+COPY post-install.sh $APP_DIR/
+RUN chmod 500 $APP_DIR/post-install.sh
 
 # default directory is /app
 WORKDIR $APP_DIR
+
+RUN apk update && apk add nodejs=20.10.0-r1 && apk add npm
+
+RUN ./post-install.sh
