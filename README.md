@@ -140,6 +140,7 @@ FALTAN LOS TESTS
 - Variables de entorno para API webscrapping                                                                        POR HACER
 - Reunión con Data:
     - Colaborar para completar API de webscrapping                                                                  POR HACER
+    - Desplegar endpoints                                                                                           POR HACER
 - Reunión con Fullstack:
     - Hosting API de guardado con API centers                                                                       POR HACER
     - Preparar variables de entorno y secretos                                                                      POR HACER
