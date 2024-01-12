@@ -128,15 +128,31 @@ FALTAN LOS TESTS
 
 - Reunión con Ciber:
     - Recibido documento hardening-v3. Implementados los cambios en el Dockerfile listo para desplegar.
-    - Crear firewall y VPC publica y privada. Expansión de permisos para modificación de VPC y firewall.            POR HACER
-- Continuación con host de API scraping                                                                             POR HACER
-- Diseño de esquema Arquitectura final                                                                              POR HACER
+    - Crear firewall y VPC publica y privada.
+- Continuación con host de API scraping
 
 ### 12 de enero, 2024
 
-- Hosting API de guardado con API centers
-- Preparar variables de entorno y secretos
-- Prueba versión 1.0 de app estable?
+- ALERTA! Gastos de Firewall desorbitados. Recurso eliminado.
+    - Descartado el uso de firewall en la fase inicial.
+    - Proponer a ciber un estudio teórico para que la empresa lo valore en el futuro.
+- Pipeline para API de webscrapping candela                                                                         POR HACER
+- Variables de entorno para API webscrapping                                                                        POR HACER
+- Reunión con Data:
+    - Colaborar para completar API de webscrapping                                                                  POR HACER
+- Reunión con Fullstack:
+    - Hosting API de guardado con API centers                                                                       POR HACER
+    - Preparar variables de entorno y secretos                                                                      POR HACER
+    - Prueba versión 1.0 de app estable                                                                             POR HACER
+
+### 13 de enero, 2024
+
+- Completar pipeline de CI/CD para Client y Server                                                                  POR HACER
+- Reunión con Ciber:
+    - Preparar VPC, firewalls y recursos necesarios para hacerlos funcionales                                       POR HACER
+- Reunión con Data:
+    - Desplegar APIs para la tabla                                                                                  POR HACER
+- Diseño de esquema Arquitectura final                                                                              POR HACER
 
 
 ### --------------PERSONAL----------------
