@@ -5,9 +5,15 @@ Submódulo para el desarrollo de la parte de cloud &amp; DevOps del proyecto "De
 
 Documentación: https://learn.microsoft.com/en-us/azure/app-service/reference-app-settings?tabs=kudu%2Cdotnet
 
-## Power BI en web apps
+## Container apps
 
-https://www.youtube.com/watch?v=XSAHwE21Buk
+**Bye bye Azure Functions, Hello Azure Container Apps: Introduction**
+
+https://endjin.com/blog/2022/09/bye-bye-azure-functions-hello-azure-container-apps-part-1-introduction
+
+**Azure container apps pricing**
+
+https://azure.microsoft.com/en-us/pricing/details/container-apps/
 
 ## Creación de pipeline CI/CD
 
@@ -139,18 +145,16 @@ FALTAN LOS TESTS
 - Pipeline para API de webscrapping candela                                                                         POR HACER
 - Variables de entorno para API webscrapping                                                                        POR HACER
 - Reunión con Data:
-    - Colaborar para completar API de webscrapping                                                                  POR HACER
-    - Desplegar endpoints                                                                                           POR HACER
+    - Colaborar para completar API de webscrapping (Container Apps)                                                 POR HACER
+    - Desplegar endpoints (Cloud functions vs container apps)                                                       POR HACER
 - Reunión con Fullstack:
-    - Hosting API de guardado con API centers                                                                       POR HACER
+    - Hosting API de guardado con API centers (container apps)                                                      POR HACER
     - Preparar variables de entorno y secretos                                                                      POR HACER
-    - Prueba versión 1.0 de app estable                                                                             POR HACER
+    - Prueba versión 1.0 de app estable (Client donde? server en container apps)                                    POR HACER
 
 ### 13 de enero, 2024
 
 - Completar pipeline de CI/CD para Client y Server                                                                  POR HACER
-- Reunión con Ciber:
-    - Preparar VPC, firewalls y recursos necesarios para hacerlos funcionales                                       POR HACER
 - Reunión con Data:
     - Desplegar APIs para la tabla                                                                                  POR HACER
 - Diseño de esquema Arquitectura final                                                                              POR HACER
