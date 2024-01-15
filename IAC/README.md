@@ -1,16 +1,8 @@
 # Infraestructura como código
 
-## Crea Subnet:
+## Import existing infrastructure:
 
-
-
-## Log Analytics workspace:
-
-Crea con Azure CLI:
-
-```bash
-az monitor log-analytics workspace create --name $(logs-name) --resource-group $(grupo-recursos)
-```
+https://charotamine.medium.com/terraform-azure-importing-an-existing-infrastructure-cab697ec37e6
 
 ## Container Apps:
 
@@ -38,3 +30,7 @@ az containerapp up --name $(app-nombre)
 ```
 
 Step 3: Add secrets to Apps
+
+## LAST: azure pipelines on teraform:
+
+https://itnext.io/creating-azure-devops-pipelines-using-terraform-48877c6419a1
