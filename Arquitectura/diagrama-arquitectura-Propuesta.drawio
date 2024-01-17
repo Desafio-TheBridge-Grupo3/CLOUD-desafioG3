@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e" scale="2" border="10">
     <diagram id="uLJD97KROvu1CpyDIIDq" name="Page-1">
-        <mxGraphModel dx="389" dy="375" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" background="#ffffff" math="0" shadow="0">
+        <mxGraphModel dx="1047" dy="787" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" background="#ffffff" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -226,21 +226,6 @@
                 </mxCell>
                 <mxCell id="111" value="Logs" style="aspect=fixed;html=1;points=[];align=center;image;fontSize=12;image=img/lib/azure2/management_governance/Operation_Log_Classic.svg;labelBackgroundColor=none;strokeColor=#008A00;strokeWidth=1;fontColor=#4D4D4D;fillColor=default;gradientColor=none;fontStyle=1" parent="1" vertex="1">
                     <mxGeometry x="667.86" y="600" width="34.27" height="41" as="geometry"/>
-                </mxCell>
-                <mxCell id="117" value="Contenedores" style="aspect=fixed;html=1;points=[];align=center;image;fontSize=12;image=img/lib/azure2/containers/Container_Registries.svg;fontStyle=1;fontColor=#333333;labelBackgroundColor=#FFFFFF;" parent="1" vertex="1">
-                    <mxGeometry x="240" y="920" width="55.74" height="50" as="geometry"/>
-                </mxCell>
-                <mxCell id="118" value="Desarrollador" style="points=[[0.35,0,0],[0.98,0.51,0],[1,0.71,0],[0.67,1,0],[0,0.795,0],[0,0.65,0]];verticalLabelPosition=bottom;sketch=0;html=1;verticalAlign=top;aspect=fixed;align=center;pointerEvents=1;shape=mxgraph.cisco19.user;fillColor=#005073;strokeColor=none;fontStyle=1;fontColor=#333333;labelBackgroundColor=#FFFFFF;" parent="1" vertex="1">
-                    <mxGeometry x="360" y="920" width="50" height="50" as="geometry"/>
-                </mxCell>
-                <mxCell id="119" value="GitHub" style="dashed=0;outlineConnect=0;html=1;align=center;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;shape=mxgraph.weblogos.github;fontStyle=1;fontColor=#333333;labelBackgroundColor=#FFFFFF;" parent="1" vertex="1">
-                    <mxGeometry x="480" y="960" width="50" height="50" as="geometry"/>
-                </mxCell>
-                <mxCell id="120" value="Pipeline" style="sketch=0;aspect=fixed;html=1;points=[];align=center;image;fontSize=12;image=img/lib/mscae/Azure_Pipelines.svg;fontStyle=1;fontColor=#333333;labelBackgroundColor=#FFFFFF;" parent="1" vertex="1">
-                    <mxGeometry x="600" y="960" width="50" height="50" as="geometry"/>
-                </mxCell>
-                <mxCell id="121" value="Azure Devops" style="aspect=fixed;html=1;points=[];align=center;image;fontSize=12;image=img/lib/azure2/devops/Azure_DevOps.svg;fontStyle=1;fontColor=#333333;labelBackgroundColor=#FFFFFF;" parent="1" vertex="1">
-                    <mxGeometry x="700" y="940" width="64" height="64" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>

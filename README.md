@@ -48,9 +48,7 @@ El diagrama muestra de forma esquemática nuestra arquitectura actualmente desar
 
 **API Candela**: API para automatizar la recuperación de datos desde la web de Candela, utilizando el CUPS.
 
-**Actualizar Tabla**: API para automatizar la actualización de la tabla con información pertinente de la base de datos.
-
-**BBDD**: La base de datos de PostgreSQL, levantada en un servidor de Azure.
+**BBDD**: La base de datos de PostgreSQL, levantada en un servidor de Azure. Genera copia de seguridad periódicamente.
 
 **Backup**: Copia de seguridad automática realizada por la base de datos. 
 
@@ -405,14 +403,359 @@ module "Container_app_client_dev" {
 }
 ```
 
-Aprovechamos los outputs de nuestros primeros cuatro contenedores para designar al client las URL mediante variables de entorno.
+Aprovechamos los outputs de nuestros primeros cuatro contenedores para designar al client las URL mediante variables de entorno. Estas URL serán la ruta que llamarán a Server, a la API de candela y a la Api de facturas.
+
+**locals.tf**:
+
+```terraform
+locals {
+  # General
+  resource-group-name = "RECURSOS-desafiotripulacionesG3"
+  location = "westeurope"
+
+  # Database
+  pg-flex-name = "database-desafio-grupo3"
+
+  # Entorno para Containers
+  container_registry_name = "SeveralEnergyCalculadora"
+  log_analytics_workspace_name_dev = "Log-analytics-DEV"
+  container_app_environment_name_dev = "env-container-apps-dev"
+  dapr_component_type = "bindings.postgresql"
+  dapr_component_name = "databaseconnect"
+
+  # API de Candela
+  container_app_candela_dev = {API-candela = {
+      name = "ws-candela-dev"
+
+      template = {
+        min_replicas     = 1
+        max_replicas     = 5
+        image            = "mcr.microsoft.com/azuredocs/aci-helloworld"
+        name             = "wscandeladev"
+        cpu              = 0.5
+        memory_gigaBytes = 1
+
+        env = [
+              {name  = "URL_CANDELA"
+              secret_name = "url-candela"},
+              {name  = "USER_CANDELA"
+              secret_name = "user-candela"},
+              {name  = "PWD_CANELA"
+              secret_name = "password-candela"}
+        ]
+      }
+
+      http_scale_rule = {
+        name                = "http-candela"
+        concurrent_requests = 5
+      }
+
+      ingress = {
+        target_port                = 5000
+        allow_insecure_connections = false
+        external_enabled           = true
+      }
+
+      secret = [
+        {name = "url-candela"
+        sec-value = "https://agentes.candelaenergia.es/#/login"},
+        {name = "user-candela"                                      # Almacenado como terraform variable
+        sec-value = var.USER_CANDELA},
+        {name = "password-candela"                                  # Almacenado como terraform secret
+        sec-value = var.PWD_CANDELA}
+      ]
+    }
+  }
+
+  # API de facturas
+  container_app_invoice_dev = {API-invoice = {
+      name = "ws-invoice-dev"
+
+      template = {
+        min_replicas     = 1
+        max_replicas     = 5
+        image            = "mcr.microsoft.com/azuredocs/aci-helloworld"
+        name             = "wsinvoicedev"
+        cpu              = 0.5
+        memory_gigaBytes = 1
+
+        env = []
+      }
+
+      http_scale_rule = {
+        name                = "http-invoice"
+        concurrent_requests = 5
+      }
+
+      ingress = {
+        target_port                = 5001
+        allow_insecure_connections = false
+        external_enabled           = true
+      }
+
+      secret = []
+    }
+  }
+
+# Servidor backend
+  container_app_server_dev = {server-cont = {
+      name = "dev-server"
+
+      template = {
+        min_replicas     = 1
+        max_replicas     = 5
+        image            = "mcr.microsoft.com/azuredocs/aci-helloworld"
+        name             = "server-develop"
+        cpu              = 0.5
+        memory_gigaBytes = 1
+
+        env = [
+              {name  = "SQL_USER"
+              secret_name = "sqluser"},
+              {name  = "SQL_PWD"
+              secret_name = "sqlpwd"},
+              {name  = "SQL_HOST"
+              secret_name = "sqlhost"},
+              {name  = "SQL_DATABASE"
+              secret_name = "sqldatabase"},
+              {name  = "JWT_SECRET"
+              secret_name = "jwtsecret"},
+              {name  = "SESSION_SECRET"
+              secret_name = "sessionsecret"}
+              ]
+      }
+
+      http_scale_rule = {
+        name                = "http-server"
+        concurrent_requests = 5
+      }
+
+      ingress = {
+        target_port                = 3000
+        allow_insecure_connections = false
+        external_enabled           = true
+      }
+
+      secret = [
+        {name = "sqluser"                  # Almacenado como terraform secret
+        sec-value = var.PG-ADMIN-USER},
+        {name = "sqlpwd"                   # Almacenado como terraform secret
+        sec-value = var.PG-ADMIN-PWD},
+        {name = "sqlhost"                  # Proporcionado por output
+        sec-value = module.database.host},
+        {name = "sqldatabase"
+        sec-value = "proyectoTribu"},
+        {name = "jwtsecret"                # Almacenado como terraform secret
+        sec-value = var.JWT_SECRET},
+        {name = "sessionsecret"            # Almacenado como terraform secret
+        sec-value = var.SESSION_SECRET}
+        ]
+    },
+  }
+
+# Servidor frontend
+  container_app_client_dev = {client-cont = {
+      name = "client-develop"
+
+      template = {
+        min_replicas     = 1
+        max_replicas     = 5
+        image            = "mcr.microsoft.com/azuredocs/aci-helloworld"
+        name             = "client-dev"
+        cpu              = 0.5
+        memory_gigaBytes = 1
+
+        env = [
+              {name  = "VITE_SERVER_URL"
+              secret_name = "viteserver"},
+              {name  = "VITE_CANDELA"
+              secret_name = "vitecandela"},
+              {name  = "VITE_INVOICE"
+              secret_name = "viteinvoice"}
+        ]
+      },
+
+      http_scale_rule = {
+        name                = "http-client"
+        concurrent_requests = 5
+      }
+
+      ingress = {
+        target_port                = 5173
+        allow_insecure_connections = false
+        external_enabled           = true
+      }
+
+      secret = [
+        {name = "viteserver"
+        sec-value = module.Container_app_server_dev.url[0]},
+        {name = "vitecandela"
+        sec-value = module.Container_app_candela_dev.url[0]},
+        {name = "viteinvoice"
+        sec-value = module.Container_app_invoice_dev.url[0]}
+      ]
+    }
+  }
+}
+```
+
+Finalmente, para que nuestra pipeline de a continuación funcione, los contenedores necesitan permiso de ArcPull en el registro de contenedores para utilizar las imágenes.
+
+**main.tf**:
+
+```terraform
+# Consultamos la ID de la API candela
+data "azurerm_container_app" "data_candela" {
+  name = "Container_app_candela_dev"
+  resource_group_name = local.resource-group-name
+  depends_on = [ module.Container_app_candela_dev ]
+}
+
+# Asignamos el permiso a la API candela
+resource "azurerm_role_assignment" "rol_candela" {
+  scope                = "/subscriptions/8981aa87-5078-479f-802f-cf78ed73bdf0/resourceGroups/${local.resource-group-name}"
+  role_definition_name = "ArcPull"
+  principal_id         = data.azurerm_container_app.data_candela.identity[0].principal_id
+  depends_on = [ data.azurerm_container_app.data_candela ]
+}
 
 
+# Consultamos la ID de la API invoice
+data "azurerm_container_app" "data_invoice" {
+  name = "Container_app_invoice_dev"
+  resource_group_name = local.resource-group-name
+  depends_on = [ module.Container_app_invoice_dev ]
+}
 
+# Asignamos el permiso a la API invoice
+resource "azurerm_role_assignment" "rol_invoice" {
+  scope                = "/subscriptions/8981aa87-5078-479f-802f-cf78ed73bdf0/resourceGroups/${local.resource-group-name}"
+  role_definition_name = "ArcPull"
+  principal_id         = data.azurerm_container_app.data_invoice.identity[0].principal_id
+  depends_on = [ data.azurerm_container_app.data_invoice ]
+}
+
+
+# Consultamos la ID de server
+data "azurerm_container_app" "data_server" {
+  name = "Container_app_client_dev"
+  resource_group_name = local.resource-group-name
+  depends_on = [ module.Container_app_server_dev ]
+}
+
+# Asignamos el permiso a server
+resource "azurerm_role_assignment" "rol_server" {
+  scope                = "/subscriptions/8981aa87-5078-479f-802f-cf78ed73bdf0/resourceGroups/${local.resource-group-name}"
+  role_definition_name = "ArcPull"
+  principal_id         = data.azurerm_container_app.data_server.identity[0].principal_id
+  depends_on = [ data.azurerm_container_app.data_server ]
+}
+
+
+# Consultamos la ID de client
+data "azurerm_container_app" "data_client" {
+  name = "Container_app_client_dev"
+  resource_group_name = local.resource-group-name
+  depends_on = [ module.Container_app_client_dev ]
+}
+
+# Asignamos el permiso a client
+resource "azurerm_role_assignment" "rol_client" {
+  scope                = "/subscriptions/8981aa87-5078-479f-802f-cf78ed73bdf0/resourceGroups/${local.resource-group-name}"
+  role_definition_name = "ArcPull"
+  principal_id         = data.azurerm_container_app.data_client.identity[0].principal_id
+  depends_on = [ data.azurerm_container_app.data_client ]
+}
+```
 
 ## 4. Despliegue e implementación contínuos (CI/CD)
 
+Para garantizar una suave transición entre las distintas fases del proyecto, por cada contenedor se ha creado una pipeline de implementación continua (CI) utilizando github, Azure container registry, y Azure DevOps. Los repositorios de github están separados por vertical, logrando un trabajo enfocado a la especialidad de cada vertiente. Además se ha habilitado un repositorio común para colaboraciones y despliegue de la pipeline de desarrollo. 
 
+Cuando una versión está lista para pruebas, se hace un push a la rama main para activar la pipeline. En ese momento, Azure DevOps contenedoriza el código de la Api y la sube al registro de contenedores, empezando así el proceso de actualización de la app. 
+
+![Alt text](Arquitectura/diagrama-pipeline.png)
+
+Despues de las pruebas, si hay errores, el desarrollador arreglará los fallos y volverá a empezar la pipeline hasta que se logre una versión estable. Cuando esto se consiga, el responsable de la pipeline sincronizará el repositorio de producción con el repositorio de desarrollo, desencadenando así la pipeline de despliegue continuo (CD) que creará su propia versión de la app, dejando libre así la pipeline de desarrollo para seguir trabajando.
+
+Las pipelines todas tienen el mismo fichero .yaml, solo diferenciandose por los parámetros que las diferencian (Nombre del contenedor y nombre de la API):
+
+**Ejemplo de la pipeline para client-severalenergy-dev**:
+```yaml
+# Docker
+# Build and push an image to Azure Container Registry
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - client
+
+resources:
+- repo: self
+
+variables:
+
+  # VARIABLES ENTRE PIPELINES
+  # ---------------------------------------------------------------------------
+  DEPLOY-STAGE: 'dev'
+  API-TO-DEPLOY: 'client'
+  # ---------------------------------------------------------------------------
+
+# Container registry service connection established during pipeline creation
+  dockerRegistryServiceConnection: '7518cb5a-e004-4437-b18b-f7c98ae1c8cb'
+  imageRepository: '$(API-TO-DEPLOY)-severalapp'
+  registryname: 'severalcontainers-$(DEPLOY-STAGE)'
+  containerRegistry: '$(registryname).azurecr.io'
+  dockerfilePath: '**/$(API-TO-DEPLOY)/Dockerfile_client'
+  tag: '$(DEPLOY-STAGE).$(Build.BuildId)'
+
+  # Container Apps Variables
+  azureSubscription: 'conexion-azure-cloud'
+  resourceGroup: 'RECURSOS-severalenergy-$(DEPLOY-STAGE)'
+  containerAppEnvironment: 'containerenvironment-severalenergy-$(DEPLOY-STAGE)'
+  containerAppName: '$(API-TO-DEPLOY)'
+
+  # Agent VM image name
+  vmImageName: 'ubuntu-latest'
+
+stages:
+- stage: Build
+  displayName: Build and push stage
+  jobs:
+  - job: Build
+    displayName: Build
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+
+    # Tarea que contenedoriza el código de
+    - task: Docker@2
+      displayName: Build and push an image to container registry
+      inputs:
+        command: buildAndPush
+        repository: $(imageRepository)
+        dockerfile: $(dockerfilePath)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          $(tag)
+
+    # Tarea que crea una nueva revisión de la Api contenedorizada
+    - task: AzureContainerApps@1
+      displayName: Update Container App
+      inputs:
+        azureSubscription: $(azureSubscription)
+        location: europewest
+        acrName: $(registryname)
+        imageToDeploy: $(containerRegistry)/$(imageRepository):$(tag)
+        resourceGroup: $(resourceGroup)
+        containerAppEnvironment: $(containerAppEnvironment)
+        containerAppName: $(containerAppName)
+        disableTelemetry: false
+```
 
 ## 5. Monitorización
 
@@ -420,110 +763,7 @@ Aprovechamos los outputs de nuestros primeros cuatro contenedores para designar 
 
 ## 6. Memoria de proyecto
 
-
-
-Submódulo para el desarrollo de la parte de cloud &amp; DevOps del proyecto "Desafio-theBridge-sep23-grupo3"
-
-## Variables de entorno:
-
-Documentación: https://learn.microsoft.com/en-us/azure/app-service/reference-app-settings?tabs=kudu%2Cdotnet
-
-## Container apps
-
-**Bye bye Azure Functions, Hello Azure Container Apps: Introduction**
-
-https://endjin.com/blog/2022/09/bye-bye-azure-functions-hello-azure-container-apps-part-1-introduction
-
-**Azure container apps pricing**
-
-https://azure.microsoft.com/en-us/pricing/details/container-apps/
-
-**CORS**
-
-https://learn.microsoft.com/en-us/azure/container-apps/cors?tabs=yaml&pivots=azure-cli
-
-## Creación de pipeline CI/CD
-
-### paso 1 - Requisitos
-
-**1.1 - Creación de un "container registry"**
-
-**1.2 - Configurar sonarQube para sanetización del código**
-
-Documentación SonarQube: https://docs.sonarsource.com/sonarqube/10.3/devops-platform-integration/azure-devops-integration/
-
-### Paso 2 - Pipeline artefacto:
-
-Crea nueva pipeline desde un repositorio de github. Una vez seleccionado el repositorio deseado, seleccionamos la opción de "**Docker** *Build and push an image to azure container registry*":
-
-![Docker Build and push an image to azure container registry](img/Screenshot_1-Pipeline-github-01.png)
-
-Ahora seleccionamos la suscripción donde tenemos nuestro registro de contenedores y rellenamos con el nombre de la imagen que vamos a crear y la ubicación del Dockerfile dentro de nuestro repositorio:
-
-![Configurar imagen](img/Screenshot_2-Pipeline-github-02.png)
-
- Revisamos que la información del YAML es correcta y agregaremos tareas de SonarQube para que Ciberseguridad pueda sanetizar el código.
-
-
-
-Finalizamos
-
-### Paso 3 - Release Pipeline de desarrollo:
-
-En despliegues, vamos a crear una nueva pipeline de despliegue y elegimos la plantilla de *Azure App Service Deployment*
-
-![Azure App Service Deployment](img/Screenshot_3-Pipeline-dev-01.png)
-
-Agrgaremos el artefacto que creamos en la pipeline con github y activamos el trigger de implementación continua:
-
-![Artefacto y tareas](img/Screenshot_4-Pipeline-dev-02.png)
-
-Seguidamente modificamos las condiciones de pre-despliegue para que se lance solo con una nueva version de nuestra imagen:
-
-![Pre deploy conditions](img/Screenshot_5-Pipeline-dev-03.png)
-
-Antes de preparar las tareas, vamos a preparar unas cuantas variables:
-
-- app-service-plan-name: Nombre del *service plan* que vamos a crear
-- app-service-name: Nombre de la *web app* que estamos creando
-- container-registry: El registro donde se encuentra la imagen del contenedor
-- container-image-name: El nombre de la imagen del contenedor
-- resource-group-name: El grupo de recursos donde estamos trabajando
-
-![Variables](img/Screenshot_6-Pipeline-dev-variables.png)
-
-Ahora nos concentramos en las tareas. En primer lugar rellenamos los parámetros requeridos del escenario *stage 1*, asegurandonos que elegimos el tipo *Web App for Containers (Linux)*:
-
-![parametros para la Web App](img/Screenshot_7-Pipeline-dev-tasks-01.png)
-
-A continuación modificaremos el agente de ejecución para que utilice ubuntu:
-
-![Agent Ubuntu](img/Screenshot_8-Pipeline-dev-tasks-02.png)
-
-Es hora de crear nuestro *app service plan*. Para ello creamos una tarea de *Azure CLI* e introducimos el comando siguiente:
-
-```
-az appservice plan create -n $(app-service-plan-name) -g $(resource-group-name) --sku F1 --is-linux
-```
-
-![Azure CLI](img/Screenshot_9-Pipeline-dev-tasks-03.png)
-![Crear service plan](img/Screenshot_10-Pipeline-dev-tasks-04.png)
-
-Ahora toca crear nuestro App service utilizando otra tarea de *Azure CLI* y el siguiente comando:
-
-```
-az webapp create -n $(app-service-name) -p $(app-service-plan-name) -g $(resource-group-name) -i $(container-registry)/$(container-image-name) --public-network-access Enabled
-```
-
-![Crear App Service](img/Screenshot_11-Pipeline-dev-tasks-05.png)
-
-Seguidamente modificaremos el Deploy Azure App Service para introducir el puerto por el que se expone la imagen en el apartado *Application and Configuration Settings*:
-
-![Puerto expuesto](img/Screenshot_12-Pipeline-dev-tasks-06.png)
-
-FALTAN LOS TESTS
-
-## MEMORIA
+Y finalmente, la realidad del dia a dia en este desafio. No todo es del color de rosas como está expuesto arriba, pero se ha logrado un producto decente a pesar de los contratiempos.
 
 ### 08 de enero, 2024
 
@@ -532,7 +772,7 @@ FALTAN LOS TESTS
 - Gestionar permisos sobre el grupo de recursos para cada grupo de seguridad
 - Reunión con Ciber: 
     - Decisión de crear una imágen de Docker securizada de alpine 3.19 como base para los despliegues
-    - Pentest de máquina hola, mundo
+    - Pentest de máquina virtual hola, mundo
 - Creación de servidor para base de datos PostgreSQL
 
 ### 09 de enero, 2024
@@ -552,9 +792,9 @@ FALTAN LOS TESTS
     - Intento de despliegue automático de sonarqube en pipeline. Conclusión: ejecución en local no tiene acceso a Azure Pipelines. Ciber busca solución con repo en local.
     - Plantilla de imágen Iron-Alpine encontrada. Test de la imágen, todo funcional.
 - Reunión con Data:
-    - Api para actualización automática de la tabla. La Api solo actualizará campos complejos. Los campos sencillos de la tabla se manejan desde front end.
-    - Necesidad de Hostear Api para el scrapping de Candela
-- Bloqueo de pipeline de despliegue por exceso de intentos. Desbloqueo en 48 horas. Solución temporal: ejecución manual del despliegue a petición de FULLSTACK.
+    - Idea de Api para actualización automática de la tabla. La Api solo actualizará campos complejos. Los campos sencillos de la tabla se manejan desde front end.
+    - Necesidad de Hostear Api para el scrapping de Candela. Azure Functions usa container apps para funciones de requerimientos complejos. Valorar utilizar container apps para la arquitectura.
+- Bloqueo de pipeline de despliegue por exceso de intentos fallidos. Desbloqueo en 48 horas. Solución temporal: ejecución manual del despliegue a petición de FULLSTACK.
 
 
 ### 11 de enero, 2024
@@ -569,25 +809,44 @@ FALTAN LOS TESTS
 - ALERTA! Gastos de Firewall desorbitados. Recurso eliminado.
     - Descartado el uso de firewall en la fase inicial.
     - Proponer a ciber un estudio teórico para que la empresa lo valore en el futuro.
-- Pipeline para API de webscrapping candela                                                                         POR HACER
-- Variables de entorno para API webscrapping                                                                        POR HACER
+- Pipeline para API de webscrapping candela
+- Variables de entorno para API webscrapping
 - Reunión con Data:
-    - Colaborar para completar API de webscrapping (Container Apps)                                                 POR HACER
-    - Desplegar endpoints (Cloud functions vs container apps)                                                       POR HACER
+    - Colaborar para completar API de webscrapping (Container Apps)
+    - Desplegar endpoints (Cloud functions vs container apps)
 - Reunión con Fullstack:
-    - Hosting API de guardado con API centers (container apps)                                                      POR HACER
-    - Preparar variables de entorno y secretos                                                                      POR HACER
-    - Prueba versión 1.0 de app estable (Client donde? server en container apps)                                    POR HACER
+    - Hosting API de guardado con API centers (container apps)
+    - Preparar variables de entorno y secretos
+    - Prueba versión 1.0 de server estable
 
 ### 13 de enero, 2024
 
-- Completar pipeline de CI/CD para Client y Server                                                                  POR HACER
+- Completar pipeline de CI/CD para Client y Server utilizando container apps
 - Reunión con Data:
-    - Desplegar APIs para la tabla                                                                                  POR HACER
-- Diseño de esquema Arquitectura final                                                                              POR HACER
+    - Desplegar APIs para la tabla
+- Diseño de esquema Arquitectura final.
 
 
-### --------------PERSONAL----------------
-- Documentarme sobre uso de variables de entorno y secretos en azure
-- Monitorización (MARKETING? CIBER?)
-- nota: CodeQL para anialisis de codigo mientras se desarrolla
+### 14 de enero, 2024
+
+- comienza el desarrollo de infraestructura como código para nuevo client, nuevo server y primer despliegue de candela y lectura de factura, utilizando terraform
+- Reunión con Data:
+    - Intentar solucionar bugs de Api de lectura de facturas.
+- Pipeline de producción a la espera de IaC y version estable.
+
+### 15 de enero, 2024
+
+- Continua IaC con terraform.
+- Ciber entrega nueva revisión de Dockerfile securizado. No funciona.
+- Problemas de permisos debido a CORS. 
+
+### 16 de enero, 2024
+
+- Versión de front end 1.0 conectada con back end satisfactoriamente.
+- Completar ficheros de IaC. Todavia no hay despliegue de producción.
+- Primer despliegue de IaC. Causa problemas
+
+### 17 de enero, 2024
+
+- IaC sigue causando problemas. Valorando empezar despliegues desde cero.
+- Documentación, ajuste de diagrama a propuesta real conseguida y memorias.
