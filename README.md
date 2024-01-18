@@ -759,7 +759,11 @@ stages:
 
 ## 5. Monitorización
 
+Hemos seguido las recomendaciones de Azure para implementar la monitorización de seguridad y cumplir con los estándares mínimos de severidad. Microsoft Defender for Cloud se encuentra habilitado para todos los recursos de la suscripción, con notificaciones de alertas de alta severidad dirigidas al correo personal del administrador.
 
+Para recopilar y analizar registros generados por las aplicaciones y la infraestructura, utilizamos un Log Analytics workspace. Configuramos alertas para los intentos de inicio de sesión de usuarios con acceso de owner mediante la creación de un diagnostic setting y una alerta personalizada que notifica al administrador por correo electrónico y SMS.
+
+Además, a través de los metrics de monitorización, obtuvimos insights sobre fallos y posibles mejoras en la estructura, permitiéndonos tomar medidas proactivas para garantizar la seguridad y eficiencia del sistema.
 
 ## 6. Memoria de proyecto
 
