@@ -1,0 +1,13 @@
+FROM severalcontainers-dev.azurecr.io/secure-alpine-dev:latest
+
+ENV APP_PORT=3000
+
+WORKDIR /app/server
+
+COPY ./server .
+
+RUN npm install
+
+EXPOSE $APP_PORT
+
+CMD ["sh", "-c", "npm run dev -- --port $APP_PORT --host 0.0.0.0"]
